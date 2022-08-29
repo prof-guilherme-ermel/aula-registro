@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<div id="app">
+    <div v-if="possuiUsuarioLogado">
+        Seja bem vindo {{ usuario.nome }}!
+    </div>
+    <!-- Não possui usuário logado -->
+    <div v-else>
+        <h2>Registrar usuario</h2>
+        <form @submit.prevent="realizarRegistro">
+            <div>
+                <label>Nome do usuário</label><br>
+                <input v-model="registro.nome" type="text" required>
+            </div>
+            <div>
+                <label>E-mail do usuário</label><br>
+                <input v-model="registro.email" type="email" required>
+            </div>
+            <div>
+                <label>Senha</label><br>
+                <input v-model="registro.senha" type="password" required>
+            </div>
+            <br>
+            <input type="submit" value="Registrar">
+        </form>
+    </div>
+</div>
+<script src="https://unpkg.com/vue@3"></script>
+<script>
+Vue.createApp({
+    data() {
+        return {
+            usuario: undefined,
+            registro: {
+                nome: undefined,
+                email: undefined,
+                senha: undefined,
+            },
+        }
+    },
+    computed: {
+        possuiUsuarioLogado() {
+            return Boolean(this.usuario);
+        }
+    },
+    methods: {
+        async realizarRegistro() {
+            const resposta = await fetch(
+                'http://localhost:3000/usuarios/registro',
+                { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.registro)
+                }
+            );
+            const dados = await resposta.json();
+            if (dados.error) {
+                return alert(dados.error);
+            }
+            this.usuario = dados.usuario;
+        },
+    }
+}).mount('#app');
+</script>    
+</body>
+</html>
